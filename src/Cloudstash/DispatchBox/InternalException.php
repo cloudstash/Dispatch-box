@@ -1,5 +1,5 @@
 <?php
 
-namespace Cloudstash\DispatchBox\EventDispatcher;
+namespace Cloudstash\DispatchBox;
 
 class InternalException extends \Exception {}
