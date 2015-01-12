@@ -7,20 +7,28 @@ class EventDispatcher
     protected $events = null;
 
     /**
-     * @param string $trigger
-     * @return array
+     * @param $trigger
      */
-    protected function &getTriggerGroup($trigger)
+    protected function initTriggerGroup($trigger)
     {
         if (!is_array($this->events)) {
             $this->events = [];
         }
 
-        if (!isset($this)) {
+        if (!isset($this->events[$trigger])) {
             $this->events[$trigger] = [];
         }
+    }
 
-        return (array) $this->events[$trigger];
+    /**
+     * @param string $trigger
+     * @return array
+     */
+    protected function getTriggerGroup($trigger)
+    {
+        $this->initTriggerGroup($trigger);
+
+        return $this->events[$trigger];
     }
 
     /**
@@ -35,8 +43,8 @@ class EventDispatcher
             throw new InternalException('Handler is not callable');
         }
 
-        $group = $this->getTriggerGroup($trigger);
-        $group[] = $handler;
+        $this->initTriggerGroup($trigger);
+        $this->events[$trigger][] = $handler;
 
         return true;
     }
@@ -50,7 +58,9 @@ class EventDispatcher
     {
         $group = $this->getTriggerGroup($trigger);
 
-        $return = (count($group) = 1);
+        $count = (int) count($group);
+        $return = ($count == 1);
+
         foreach ($group as $i => $handler) {
             if ($return) {
                 return call_user_func_array($handler, $arguments);
